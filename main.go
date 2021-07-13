@@ -16,6 +16,8 @@ import (
 const (
 	MarkdownTableHeader = "\n\n\n### %s \n| 序号 | 字段名称 | 数据类型 | 是否为空 | 字段说明 |\n| :--: |----| ---- | ---- | ---- |\n"
 	MarkdownTableRow    = "| %d | %s | %s | %s | %s |\n"
+	SelectTableSql      = "SELECT TABLE_NAME, TABLE_COMMENT FROM information_schema.TABLES WHERE table_type='BASE TABLE' AND TABLE_SCHEMA = ?"
+	SelectColumnSql     = "SELECT ORDINAL_POSITION, COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_COMMENT FROM information_schema.COLUMNS WHERE TABLE_SCHEMA= ? AND TABLE_NAME= ?"
 )
 
 var (
@@ -66,8 +68,7 @@ func init() {
 func main() {
 	var tables []Table
 	db := NewMysql()
-	err := db.Raw("SELECT TABLE_NAME, TABLE_COMMENT FROM "+
-		"information_schema.TABLES WHERE table_type='BASE TABLE' AND TABLE_SCHEMA = ?", Schema).
+	err := db.Raw(SelectTableSql, Schema).
 		Scan(&tables).Error
 	if err != nil {
 		log.Fatal(err)
@@ -82,8 +83,7 @@ func main() {
 		buf.WriteString(fmt.Sprintf(MarkdownTableHeader, header))
 
 		var columns []Column
-		err := db.Raw("SELECT ORDINAL_POSITION, COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_COMMENT "+
-			"FROM information_schema.COLUMNS WHERE TABLE_SCHEMA= ? AND TABLE_NAME= ?", Schema, t.TableName).
+		err := db.Raw(SelectColumnSql, Schema, t.TableName).
 			Scan(&columns).Error
 		if err != nil {
 			log.Fatal(err)
