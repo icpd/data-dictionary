@@ -28,7 +28,7 @@ WHERE
 
 ### 方式二、使用该项目命令生成markdown表格
 ```shell
-./main -d='username:password@tcp(127.0.0.1:3306)/information_schema' -s=database
+./data-dictionary -d='username:password@tcp(127.0.0.1:3306)/information_schema' -s=database
 ```
 完成后在目录下会生成一个`db.md`的文件
 
